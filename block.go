@@ -10,6 +10,7 @@ type Block struct {
 	Data string
 	PreBlockHash string
 	Hash string
+	Nonce int
 }
 
 func NewBlock(data string, preBlockHash string) *Block {
@@ -20,6 +21,8 @@ func NewBlock(data string, preBlockHash string) *Block {
 	}
 	return b
 }
+
+
 
 func ComputeHash(data string,preBlockHash string) string {
 	result :=ProofOfWork(data+preBlockHash)

@@ -15,7 +15,7 @@ func ProofOfWork(data string) []byte {
 }
 
 //工作量,给定前几个位被0所占据
-func ProofOfWorkWithDifficult(data string, numbers int){
+func ProofOfWorkWithDifficult(data string, numbers,nonce int) string {
 	//拼接前n位0
 	buf:=bytes.Buffer{}
 	for i:=0;i<numbers;i++{
@@ -23,14 +23,13 @@ func ProofOfWorkWithDifficult(data string, numbers int){
 	}
 	result := buf.String()
 
-	n:=0
 	for{
-		hash:=fmt.Sprintf("%x",ProofOfWork(data+string(n)))
-		n++
+		hash:=fmt.Sprintf("%x",ProofOfWork(data+string(nonce)))
+		nonce++
 		if hash[:numbers] == result {
 			fmt.Println(hash)
-			fmt.Println(n)
-			break
+			fmt.Println(nonce)
+			return hash
 		}
 	}
 }

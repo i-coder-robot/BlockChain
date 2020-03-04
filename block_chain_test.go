@@ -71,5 +71,15 @@ func TestBlockChain_Validate(t *testing.T) {
 
 }
 
-
-
+func TestDigMine(t *testing.T) {
+	o := Origin("我时老祖宗区块", "")
+	//o.String()
+	o.Difficulty=4
+	b:=&Block{
+		Data:         "今天要挖矿，心情好激动",
+		PreBlockHash: o.GetLatestBlockHash(),
+		Hash:         "",
+		Nonce:        0,
+	}
+	DigMine(b,o.Difficulty)
+}

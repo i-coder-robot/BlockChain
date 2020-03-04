@@ -12,6 +12,6 @@ func TestProofOfWork(t *testing.T) {
 }
 
 func TestProofOfWorkWithDifficult(t *testing.T) {
-	ProofOfWorkWithDifficult("block_chan_1",2)
+	ProofOfWorkWithDifficult("block_chan_1",2,1)
 	//ProofOfWorkWithDifficult("block_chan_2",2)
 }

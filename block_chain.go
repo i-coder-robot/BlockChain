@@ -7,13 +7,23 @@ import (
 
 type BlockChain struct {
 	Blocks []*Block
+	Difficulty int
 }
 
 //添加区块到区块链上
 func (blockChain *BlockChain) AddBlockToChan(block *Block) *BlockChain {
+	DigMine(block, blockChain.Difficulty)
 	blockChain.Blocks = append(blockChain.Blocks, block)
 	return blockChain
 }
+
+func DigMine(block *Block,difficulty int) *Block {
+	mine:=ProofOfWorkWithDifficult(block.Data,difficulty,block.Nonce)
+	block.Hash=mine
+	fmt.Printf("恭喜你，挖到矿了...%s",mine)
+	return block
+}
+
 
 //获取最后一个区块上的hash值
 func (blockChain *BlockChain) GetLatestBlockHash() string {
