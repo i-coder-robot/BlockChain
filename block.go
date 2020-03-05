@@ -2,43 +2,39 @@ package BlockChain
 
 import (
 	_ "crypto/sha256"
-	"encoding/json"
 	"fmt"
 )
 
 type Block struct {
-	Data string
+	Transactions []*Transaction
 	PreBlockHash string
-	Hash string
-	Nonce int
+	Hash         string
+	Nonce        int
+	TimeStamp    int64
 }
 
-func NewBlock(data string, preBlockHash string) *Block {
+func NewBlock(data []*Transaction, preBlockHash string) *Block {
 	b := &Block{
-		Data:         data,
+		Transactions: data,
 		PreBlockHash: preBlockHash,
-		Hash:         ComputeHash(data,preBlockHash),
+		Hash:         "",
 	}
 	return b
 }
 
-
-
-func ComputeHash(data string,preBlockHash string) string {
-	result :=ProofOfWork(data+preBlockHash)
-	return fmt.Sprintf("%x",result)
+func ComputeHash(block *Block) string {
+	data:=string(ToString(block.Transactions))+block.PreBlockHash+string(block.Nonce) + string(block.TimeStamp)
+	result := ProofOfWork(data)
+	r := fmt.Sprintf("%x", result)
+	return r
 }
 
 func (block *Block) String() {
-	bytes, e := json.Marshal(block)
-	if e != nil {
-		panic("序列化出错拉")
-	}
-	fmt.Println(string(bytes))
+	ToString(block)
 }
 
 //验证当前区块的数据合法性--校验 数据和preHash的值再次做hash后，是否和传入给你的当前区块的hash值一致
 func (block *Block) CurrentValidate() bool {
-	computedHash :=ComputeHash(block.Data,block.PreBlockHash)
+	computedHash := ComputeHash(block)
 	return block.Hash == computedHash
 }

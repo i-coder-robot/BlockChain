@@ -1,14 +1,28 @@
 package BlockChain
 
 import (
-	"encoding/json"
 	"fmt"
 )
 
 type BlockChain struct {
-	Blocks []*Block
-	Difficulty int
+	Blocks          []*Block
+	Difficulty      int
+	DigMineRewards  int
+	TransactionPool []*Transaction
 }
+
+//生成老祖宗区块
+func NewBlockChain(transactions []*Transaction, blocks []*Block,difficulty,rewards int) *BlockChain {
+
+	blockChain := &BlockChain{
+		Blocks: blocks,
+		TransactionPool:transactions,
+		Difficulty:difficulty,
+		DigMineRewards:rewards,
+	}
+	return blockChain
+}
+
 
 //添加区块到区块链上
 func (blockChain *BlockChain) AddBlockToChan(block *Block) *BlockChain {
@@ -18,9 +32,9 @@ func (blockChain *BlockChain) AddBlockToChan(block *Block) *BlockChain {
 }
 
 func DigMine(block *Block,difficulty int) *Block {
-	mine:=ProofOfWorkWithDifficult(block.Data,difficulty,block.Nonce)
+	mine:=ProofOfWorkWithDifficult(block,difficulty)
 	block.Hash=mine
-	fmt.Printf("恭喜你，挖到矿了...%s",mine)
+	fmt.Printf("恭喜你，挖到矿了...%s\n",mine)
 	return block
 }
 
@@ -51,20 +65,7 @@ func (blockChain *BlockChain) Validate() bool {
 	return true
 }
 
-//生成老祖宗区块
-func Origin(data string, preHash string) *BlockChain {
-	originalBlock := NewBlock("我是老祖宗区块", preHash)
-	blocks := []*Block{originalBlock}
-	blockChain := &BlockChain{
-		Blocks: blocks,
-	}
-	return blockChain
-}
 
 func (blockChain *BlockChain) String() {
-	bytes, e := json.Marshal(blockChain)
-	if e != nil {
-		panic("序列化出错拉")
-	}
-	fmt.Println(string(bytes))
+	ToString(blockChain)
 }

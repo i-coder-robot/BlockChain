@@ -3,60 +3,128 @@ package BlockChain
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestOrigin(t *testing.T) {
-	o := Origin("我时老祖宗区块", "")
+	//因为是创世纪的区块，那么转账是系统给的，所以from是空的
+	t1:=&Transaction{
+		From:   "",
+		To:     "我时老祖宗区块",
+		Amount: 50.0,
+	}
+	b:=&Block{
+		Transactions: []*Transaction{t1},
+		PreBlockHash: "",
+		Hash:         "",
+		Nonce:        0,
+		TimeStamp:    time.Now().Unix(),
+	}
+	blocks := []*Block{b}
+	o := NewBlockChain([]*Transaction{t1}, blocks,2,50)
 	o.String()
 }
 
 func TestBlockChain_AddBlockToChan(t *testing.T) {
-	o := Origin("我时老祖宗区块", "")
-	desc1 := "小明给小姐姐转账300元"
-	preBlockHash1 :=o.GetLatestBlockHash()
-	block1 := &Block{
-		Data:        desc1,
-		PreBlockHash: preBlockHash1,
-		Hash:         ComputeHash(desc1,preBlockHash1),
+	t0:=&Transaction{
+		From:   "",
+		To:     "我时老祖宗区块",
+		Amount: 50.0,
 	}
+	b0:=&Block{
+		Transactions: []*Transaction{t0},
+		PreBlockHash: "",
+		Hash:         "",
+		Nonce:        0,
+		TimeStamp:    time.Now().Unix(),
+	}
+	b0.Hash=ComputeHash(b0)
+	blocks := []*Block{b0}
+	o := NewBlockChain([]*Transaction{t0}, blocks,2,50)
+
+	t1 := &Transaction{
+		From:   "小明",
+		To:     "小姐姐",
+		Amount: 3.68,
+	}
+	block1 := &Block{
+		Transactions: []*Transaction{t1},
+		PreBlockHash: o.GetLatestBlockHash(),
+		Hash:         "",
+	}
+	block1.Hash = ComputeHash(block1)
 	o.AddBlockToChan(block1)
 
-	desc2 := "小丁给小姐姐转账500元"
-	preBlockHash2 :=o.GetLatestBlockHash()
-	block2 := &Block{
-		Data:        desc2,
-		PreBlockHash: preBlockHash2,
-		Hash:         ComputeHash(desc1,preBlockHash1),
+	t2 := &Transaction{
+		From:   "小丁",
+		To:     "小姐姐",
+		Amount: 5.25,
 	}
-	o.AddBlockToChan(block2)
+	b2 := &Block{
+		Transactions: []*Transaction{t2},
+		PreBlockHash: o.GetLatestBlockHash(),
+		Hash:         "",
+		Nonce:        0,
+		TimeStamp:    time.Now().Unix(),
+	}
+	b2.Hash=ComputeHash(b2)
+	o.AddBlockToChan(b2)
+
 	o.String()
 }
 
 func TestBlockChain_Validate(t *testing.T) {
 
 	//验证区块链上只有一个祖先区块的时候
-	o := Origin("我时老祖宗区块", "")
+	t0:=&Transaction{
+		From:   "",
+		To:     "我时老祖宗区块",
+		Amount: 50.0,
+	}
+	b0:=&Block{
+		Transactions:[]*Transaction{t0},
+		PreBlockHash:"",
+		Hash:"",
+		Nonce       :0,
+		TimeStamp    :time.Now().Unix(),
+	}
+	b0.Hash=ComputeHash(b0)
+
+	o := NewBlockChain([]*Transaction{t0}, []*Block{b0},2,50)
+
 	result := o.Validate()
 	fmt.Println(result)
 
 	//验证区块链上有多个区块的时候
-	desc1 := "小明给小姐姐转账300元"
-	preBlockHash1 :=o.GetLatestBlockHash()
-	block1 := &Block{
-		Data:        desc1,
-		PreBlockHash: preBlockHash1,
-		Hash:         ComputeHash(desc1,preBlockHash1),
+
+	t1 := &Transaction{
+		From:   "小明",
+		To:     "小姐姐",
+		Amount: 3.68,
 	}
+	block1 := &Block{
+		Transactions: []*Transaction{t1},
+		PreBlockHash: o.GetLatestBlockHash(),
+		Hash:         "",
+	}
+	block1.Hash = ComputeHash(block1)
 	o.AddBlockToChan(block1)
 
-	desc2 := "小丁给小姐姐转账500元"
-	preBlockHash2 :=o.GetLatestBlockHash()
-	block2 := &Block{
-		Data:        desc2,
-		PreBlockHash: preBlockHash2,
-		Hash:         ComputeHash(desc2,preBlockHash2),
+	t2 := &Transaction{
+		From:   "小丁",
+		To:     "小姐姐",
+		Amount: 5.25,
 	}
-	o.AddBlockToChan(block2)
+	b2 := &Block{
+		Transactions: []*Transaction{t2},
+		PreBlockHash: o.GetLatestBlockHash(),
+		Hash:         "",
+		Nonce:        0,
+		TimeStamp:    time.Now().Unix(),
+	}
+	b2.Hash=ComputeHash(b2)
+	o.AddBlockToChan(b2)
+
 	r := o.Validate()
 	fmt.Println(r)
 
@@ -72,14 +140,34 @@ func TestBlockChain_Validate(t *testing.T) {
 }
 
 func TestDigMine(t *testing.T) {
-	o := Origin("我时老祖宗区块", "")
-	//o.String()
-	o.Difficulty=4
-	b:=&Block{
-		Data:         "今天要挖矿，心情好激动",
+	t0:=&Transaction{
+		From:   "",
+		To:     "我时老祖宗区块",
+		Amount: 50.0,
+	}
+	b0 := &Block{
+		Transactions: []*Transaction{t0},
+		PreBlockHash: "",
+		Hash:         "",
+		Nonce:        0,
+		TimeStamp:    time.Now().Unix(),
+	}
+	b0.Hash=ComputeHash(b0)
+	o := NewBlockChain([]*Transaction{t0}, []*Block{b0},2,50)
+
+	//o.ToString()
+	o.Difficulty = 4
+	t1:=&Transaction{
+		From:   "小明",
+		To:     "海底捞",
+		Amount: 0.52,
+	}
+	b := &Block{
+		Transactions: []*Transaction{t1},
 		PreBlockHash: o.GetLatestBlockHash(),
 		Hash:         "",
 		Nonce:        0,
 	}
-	DigMine(b,o.Difficulty)
+	b.Hash=ComputeHash(b)
+	DigMine(b, o.Difficulty)
 }
