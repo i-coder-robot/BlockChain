@@ -48,25 +48,37 @@ func NewTransactionHandler(c *gin.Context) {
 
 }
 
+
+
 func ChainHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"当前区块长度": len(blockChain.Blocks),
-		"当前区块链":  blockChain,
+		"length": len(blockChain.Blocks),
+		"chain":  blockChain,
 	})
 }
 
+type Neighbor struct {
+	Nodes string `json:"nodes"`
+}
+
 func NodesRegisterHandler(c *gin.Context) {
-	nodes := c.Param("nodes")
-	if nodes == "" || len(nodes) == 0 {
-		panic("参数错误")
+
+	var neighbor Neighbor
+	e := c.ShouldBindJSON(&neighbor)
+	if e != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "参数错误:" + e.Error(),
+		})
+		return
 	}
-	newNodes := strings.Split(nodes, ",")
+
+	newNodes := strings.Split(neighbor.Nodes, ",")
 	for _, node := range newNodes {
 		blockChain.RegisterNode(node)
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "新节点添加完成",
-		"总结点":     ToString(blockChain.Nodes),
+		"nodes":     ToString(blockChain.Nodes),
 	})
 }
 
@@ -75,12 +87,12 @@ func NodesResolveHandler(c *gin.Context) {
 	if resolved {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "区块链已经解决冲突",
-			"当前的区块链":  blockChain.String(),
+			"chain":  blockChain,
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "区块链是最新的",
-			"当前的区块链":  blockChain.String(),
+			"chain":  blockChain.String(),
 		})
 	}
 }

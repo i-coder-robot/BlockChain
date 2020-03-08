@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 type BlockChain struct {
@@ -13,32 +14,38 @@ type BlockChain struct {
 	Nodes           []string       `json:"nodes"`
 }
 
+type ChainJson struct {
+	Length int `json:"length"`
+	Chain BlockChain `json:"chain"`
+}
+
 func ResolveConflicts(blockChain *BlockChain) bool {
 	neighbors := blockChain.Nodes
-	var newChain *BlockChain
+	var newChain ChainJson
 	maxLength := len(blockChain.Blocks)
 
 	for _, node := range neighbors {
-		bytes, _, e := HttpGet(node)
+		bytes, _, e := HttpGet(node+"/chain")
+		fmt.Println(string(bytes))
 		if e != nil {
 			fmt.Println("请求兄弟节点失败@@@" + e.Error())
 		}
-		e = json.Unmarshal(bytes, newChain)
+		e = json.Unmarshal(bytes, &newChain)
 		if e != nil {
 			fmt.Println("解析兄弟节点失败@@@" + e.Error())
 		}
 
-		length := len(newChain.Blocks)
+		length := newChain.Length
 
-		if length > maxLength && newChain.Validate() {
+		if length > maxLength && newChain.Chain.Validate() {
 			maxLength = length
-			blockChain = newChain
+			blockChain.Blocks = newChain.Chain.Blocks
+			blockChain.TransactionPool = newChain.Chain.TransactionPool
+			blockChain.Nodes = newChain.Chain.Nodes
+			return true
 		}
 	}
 
-	if newChain != nil {
-		return true
-	}
 	return false
 }
 
@@ -60,6 +67,7 @@ func (blockChain *BlockChain) GetLatestBlockHash() string {
 func DigMine(block *Block, difficulty int) *Block {
 	mine := ProofOfWorkWithDifficult(block, difficulty)
 	block.Hash = mine
+	block.TimeStamp=time.Now().Unix()
 	fmt.Printf("恭喜您，挖到矿拉...%s", mine)
 	return block
 }

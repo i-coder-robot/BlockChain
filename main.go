@@ -11,10 +11,11 @@ const (
 	difficulty = 4
 )
 
-
 var blockChain *BlockChain
+
 //var transactions []*Transaction
 var transactionPool []*Transaction
+
 func Init() {
 	transaction := &Transaction{
 		From:   "",
@@ -31,19 +32,23 @@ func Init() {
 		Nonce:        0,
 		TimeStamp:    time.Now().Unix(),
 	}
-	block.Hash = ProofOfWorkWithDifficult(block,difficulty)
+	block.Hash = ProofOfWorkWithDifficult(block, difficulty)
 	blockChain = NewBlockChain(transactions, block, difficulty, rewards)
 }
 
 func main() {
-	r:= gin.Default()
-	r.GET("/mine",MineHandler)
-	r.POST("/transactions/new",NewTransactionHandler)
-	r.GET("/chain",ChainHandler)
-	r.POST("/nodes/register",NodesRegisterHandler)
-	r.POST("/nodes/resolve",NodesResolveHandler)
+	r := gin.Default()
+	r.GET("/mine", MineHandler)
+	r.POST("/transactions/new", NewTransactionHandler)
+	r.GET("/chain", ChainHandler)
+	r.POST("/nodes/register/", NodesRegisterHandler)
+	r.POST("/nodes/resolve", NodesResolveHandler)
 	Init()
-	port:=flag.String("port","8081","请输入端口号")
-	r.Run("0.0.0.0:"+*port)
+	port := flag.String("port", "", "请输入端口号")
+	flag.Parse()
+	portStr := *port
+	if portStr == "" {
+		portStr = "8081"
+	}
+	r.Run("0.0.0.0:" + portStr)
 }
-
