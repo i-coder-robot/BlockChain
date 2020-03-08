@@ -1,4 +1,4 @@
-package BlockChain
+package main
 
 import (
 	"fmt"

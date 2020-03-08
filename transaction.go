@@ -1,15 +1,13 @@
-package BlockChain
-
-import BlockChain2 "github.com/i-coder-robot/BlockChain"
+package main
 
 type Transaction struct {
-	From   string
-	To     string
-	Amount float64
+	From   string	`json:"from"`
+	To     string	`json:"to"`
+	Amount float64	`json:"amount"`
 }
 
 func (transaction *Transaction) String() string {
-	return BlockChain2.ToString(transaction)
+	return ToString(transaction)
 }
 
 func NewTransaction(from, to string, amount float64) *Transaction {

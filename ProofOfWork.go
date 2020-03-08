@@ -1,4 +1,4 @@
-package BlockChain
+package main
 
 import (
 	"bytes"
@@ -15,7 +15,7 @@ func ProofOfWork(data string) []byte {
 }
 
 //工作量,给定前几个位被0所占据
-func ProofOfWorkWithDifficult(block *BlockChain.Block,difficulty int) string {
+func ProofOfWorkWithDifficult(block *Block,difficulty int) string {
 	//拼接前n位0
 	buf:=bytes.Buffer{}
 	for i:=0;i<difficulty;i++{

@@ -1,17 +1,16 @@
-package BlockChain
+package main
 
 import (
 	"encoding/json"
 	"fmt"
-	BlockChain2 "github.com/i-coder-robot/BlockChain"
 )
 
 type BlockChain struct {
-	Blocks          []*Block
-	Difficulty      int
-	DigMineRewards  float64
-	transactionPool []*Transaction
-	Nodes           []string
+	Blocks          []*Block       `json:"blocks"`
+	Difficulty      int            `json:"difficulty"`
+	DigMineRewards  float64        `json:"digMineRewards"`
+	TransactionPool []*Transaction `json:"TransactionPool"`
+	Nodes           []string       `json:"nodes"`
 }
 
 func ResolveConflicts(blockChain *BlockChain) bool {
@@ -20,24 +19,24 @@ func ResolveConflicts(blockChain *BlockChain) bool {
 	maxLength := len(blockChain.Blocks)
 
 	for _, node := range neighbors {
-		bytes, _, e := BlockChain2.HttpGet(node)
+		bytes, _, e := HttpGet(node)
 		if e != nil {
-			fmt.Println("请求兄弟节点失败@@@"+e.Error())
+			fmt.Println("请求兄弟节点失败@@@" + e.Error())
 		}
 		e = json.Unmarshal(bytes, newChain)
 		if e != nil {
-			fmt.Println("解析兄弟节点失败@@@"+e.Error())
+			fmt.Println("解析兄弟节点失败@@@" + e.Error())
 		}
 
-		length:= len(newChain.Blocks)
+		length := len(newChain.Blocks)
 
-		if length>maxLength && newChain.Validate() {
-			maxLength=length
+		if length > maxLength && newChain.Validate() {
+			maxLength = length
 			blockChain = newChain
 		}
 	}
 
-	if newChain!=nil{
+	if newChain != nil {
 		return true
 	}
 	return false
@@ -91,7 +90,7 @@ func NewBlockChain(transactions []*Transaction, block *Block, difficulty int, re
 
 	blockChain := &BlockChain{
 		Blocks:          []*Block{block},
-		transactionPool: transactions,
+		TransactionPool: transactionPool,
 		DigMineRewards:  rewards,
 		Difficulty:      difficulty,
 	}
@@ -99,5 +98,5 @@ func NewBlockChain(transactions []*Transaction, block *Block, difficulty int, re
 }
 
 func (blockChain *BlockChain) String() string {
-	return BlockChain2.ToString(blockChain)
+	return ToString(blockChain)
 }

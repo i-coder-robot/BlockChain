@@ -2,61 +2,45 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/i-coder-robot/BlockChain/BlockChain"
 	"net/http"
 	"strings"
-	"time"
 )
-
-var blockChain *BlockChain.BlockChain
-const (
-	rewards = 50.0
-	difficulty = 4
-)
-func Init() {
-	transaction:=&BlockChain.Transaction{
-		From:   "",
-		To:     "欢喜哥",
-		Amount: rewards,
-	}
-	transactions := []*BlockChain.Transaction{transaction}
-	block := &BlockChain.Block{
-		Transactions: transactions,
-		PreBlockHash: "",
-		Hash:         "",
-		Nonce:        0,
-		TimeStamp:    time.Now().Unix(),
-	}
-	block.Hash = BlockChain.ComputeHash(block)
-	blockChain = BlockChain.NewBlockChain(transactions, block, difficulty, rewards)
-}
 
 func MineHandler(c *gin.Context) {
 
 	r := blockChain.Validate()
-	if !r{
+	if !r {
 		panic("该区块链校验失败")
 	}
-	currentBlock:=blockChain.Blocks[len(blockChain.Blocks)-1]
-	mine := BlockChain.DigMine(currentBlock, difficulty)
-	c.JSON(http.StatusOK,gin.H{
-		"message":"挖到矿了",
-		"block":mine.String(),
+	preHash:= blockChain.Blocks[len(blockChain.Blocks)-1].Hash
+	newBlock := NewBlock(transactionPool,preHash)
+	mine := DigMine(newBlock, difficulty)
+	blockChain.Blocks = append(blockChain.Blocks, newBlock)
+	blockChain.TransactionPool=nil
+	c.JSON(http.StatusOK, gin.H{
+		"message": "挖到矿了",
+		"block":   mine.String(),
 	})
 }
 
 func NewTransactionHandler(c *gin.Context) {
-	var t *BlockChain.Transaction
-	e:= c.ShouldBind(t)
+	var t Transaction
+	e := c.ShouldBindJSON(&t)
 	if e != nil {
-		panic("参数错误")
+		c.JSON(http.StatusOK, gin.H{
+			"message": "参数错误:" + e.Error(),
+		})
+		return
 	}
 
-	transaction := &BlockChain.Transaction{
+	transaction := &Transaction{
 		From:   t.From,
 		To:     t.To,
 		Amount: t.Amount,
 	}
+	//blockChain.TransactionPool = append(blockChain.TransactionPool, transaction)
+	transactionPool = append(blockChain.TransactionPool, transaction)
+	blockChain.TransactionPool = transactionPool
 	c.JSON(http.StatusOK, gin.H{
 		"message":     "创建交易成功",
 		"transaction": transaction.String(),
@@ -73,21 +57,21 @@ func ChainHandler(c *gin.Context) {
 
 func NodesRegisterHandler(c *gin.Context) {
 	nodes := c.Param("nodes")
-	if nodes == "" || len(nodes) == 0{
+	if nodes == "" || len(nodes) == 0 {
 		panic("参数错误")
 	}
-	newNodes := strings.Split(nodes,",")
-	for _,node :=range newNodes{
+	newNodes := strings.Split(nodes, ",")
+	for _, node := range newNodes {
 		blockChain.RegisterNode(node)
 	}
-	c.JSON(http.StatusOK,gin.H{
-		"message":"新节点添加完成",
-		"总结点": ToString(blockChain.Nodes),
+	c.JSON(http.StatusOK, gin.H{
+		"message": "新节点添加完成",
+		"总结点":     ToString(blockChain.Nodes),
 	})
 }
 
 func NodesResolveHandler(c *gin.Context) {
-	resolved := BlockChain.ResolveConflicts(blockChain)
+	resolved := ResolveConflicts(blockChain)
 	if resolved {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "区块链已经解决冲突",
