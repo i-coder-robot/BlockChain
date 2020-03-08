@@ -13,18 +13,18 @@ func TestProofOfWork(t *testing.T) {
 }
 
 func TestProofOfWorkWithDifficult(t *testing.T) {
-	t1 := &Transaction{
+	t1:=&Transaction{
 		From:   "小明",
 		To:     "小姐姐",
-		Amount: 2.101,
+		Amount: 2.01,
 	}
-	b := &Block{
+	b:=&BlockChain.Block{
 		Transactions: []*Transaction{t1},
 		PreBlockHash: "123456",
 		Hash:         "",
 		Nonce:        0,
 		TimeStamp:    time.Now().Unix(),
 	}
-	b.Hash = ComputeHash(b)
-	ProofOfWorkWithDifficult(b, 2)
+	ProofOfWorkWithDifficult(b,2)
+	//ProofOfWorkWithDifficult("block_chan_2",2)
 }

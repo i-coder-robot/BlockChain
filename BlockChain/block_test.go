@@ -6,10 +6,10 @@ import (
 
 func TestNew(t *testing.T) {
 	t1:=&Transaction{
-		From:   "老王",
-		To:     "小姐姐",
-		Amount: 0.68,
+		From:   "",
+		To:     "老李",
+		Amount: 0,
 	}
-	newBlock := NewBlock([]*Transaction{t1},"123456")
+	newBlock := NewBlock([]*Transaction{t1},"")
 	newBlock.String()
 }
