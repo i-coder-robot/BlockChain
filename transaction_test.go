@@ -25,13 +25,13 @@ func TestNewTransaction(t *testing.T) {
 		Amount: 1.8,
 	}
 	transactions :=[]*Transaction{t0,t1,t2}
-	b:=&BlockChain.Block{
+	b:=&Block{
 		Transactions:transactions,
 		PreBlockHash: "123456",
 	}
-	b.Hash= BlockChain.ComputeHash(b)
-	BlockChain.DigMine(b,2)
-	chain:= BlockChain.NewBlockChain(transactions,b,2,50.0)
+	b.Hash= ComputeHash(b)
+	DigMine(b,2)
+	chain:= NewBlockChain(transactions,b,2,50.0)
 	r:=chain.String()
 
 	fmt.Println(r)

@@ -19,7 +19,7 @@ func MineHandler(c *gin.Context) {
 	blockChain.TransactionPool=nil
 	c.JSON(http.StatusOK, gin.H{
 		"message": "挖到矿了",
-		"block":   mine.String(),
+		"block":   mine,
 	})
 }
 
@@ -43,7 +43,7 @@ func NewTransactionHandler(c *gin.Context) {
 	blockChain.TransactionPool = transactionPool
 	c.JSON(http.StatusOK, gin.H{
 		"message":     "创建交易成功",
-		"transaction": transaction.String(),
+		"transaction": transaction,
 	})
 
 }
@@ -92,7 +92,7 @@ func NodesResolveHandler(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "区块链是最新的",
-			"chain":  blockChain.String(),
+			"chain":  blockChain,
 		})
 	}
 }

@@ -18,7 +18,7 @@ func TestProofOfWorkWithDifficult(t *testing.T) {
 		To:     "小姐姐",
 		Amount: 2.01,
 	}
-	b:=&BlockChain.Block{
+	b:=&Block{
 		Transactions: []*Transaction{t1},
 		PreBlockHash: "123456",
 		Hash:         "",
